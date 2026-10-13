@@ -1,0 +1,20 @@
+# /etc/fail2ban/jail.local — защита SSH от подбора паролей (учебный пример).
+# Установка (Debian/Ubuntu):
+#   sudo apt install fail2ban
+#   sudo cp fail2ban_jail.local /etc/fail2ban/jail.local
+#   sudo systemctl enable --now fail2ban
+# Проверка:  sudo fail2ban-client status sshd
+
+[DEFAULT]
+# Не блокировать локальные адреса; добавьте сюда свои доверенные адреса
+ignoreip = 127.0.0.1/8 ::1
+# Время бана, окно наблюдения и допустимое число неудачных попыток
+bantime  = 1h
+findtime = 10m
+maxretry = 5
+# Брать логи из systemd-journal (работает и там, где нет /var/log/auth.log)
+backend = systemd
+
+[sshd]
+enabled = true
+port    = ssh

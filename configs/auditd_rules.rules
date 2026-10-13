@@ -1,0 +1,32 @@
+## Минимальный набор правил auditd (учебный пример).
+## Установка: sudo cp auditd_rules.rules /etc/audit/rules.d/99-hardening.rules && sudo augenrules --load
+## Просмотр:  sudo ausearch -k identity -i      sudo aureport --summary
+
+# Сбросить предыдущие правила и увеличить буфер
+-D
+-b 8192
+
+# Изменения учётных записей и прав
+-w /etc/passwd  -p wa -k identity
+-w /etc/shadow  -p wa -k identity
+-w /etc/group   -p wa -k identity
+-w /etc/sudoers -p wa -k sudoers
+-w /etc/sudoers.d/ -p wa -k sudoers
+
+# Изменения конфигурации SSH
+-w /etc/ssh/sshd_config -p wa -k sshd_config
+
+# Изменение системного времени
+-a always,exit -F arch=b64 -S adjtimex,settimeofday,clock_settime -k time_change
+
+# Загрузка и выгрузка модулей ядра
+-w /sbin/insmod   -p x -k modules
+-w /sbin/rmmod    -p x -k modules
+-w /sbin/modprobe -p x -k modules
+
+# Неудачные попытки доступа к файлам
+-a always,exit -F arch=b64 -S open,openat -F exit=-EACCES -k access_denied
+-a always,exit -F arch=b64 -S open,openat -F exit=-EPERM  -k access_denied
+
+# Сделать конфигурацию неизменяемой до перезагрузки (раскомментируйте, когда правила отлажены)
+# -e 2
